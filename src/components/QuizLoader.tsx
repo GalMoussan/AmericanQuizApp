@@ -7,7 +7,7 @@ type QuizLoaderProps = {
 };
 
 export function QuizLoader({ onBack, onQuestionsUpdate }: QuizLoaderProps) {
-	const [textInput, setTextInput] = useState('');
+	const [file, setFile] = useState<File | null>(null);
 	const [parseStatus, setParseStatus] = useState<{ success: boolean; message: string } | null>(null);
 	const [existingCount, setExistingCount] = useState<number | null>(null);
 
@@ -25,93 +25,89 @@ export function QuizLoader({ onBack, onQuestionsUpdate }: QuizLoaderProps) {
 		}
 	}, []);
 
-	const parseQuestions = (text: string): Question[] => {
-		// Split by double newlines to separate questions
-		// This is a heuristic: ideally users paste "Question 1... \n a) ... \n\n Question 2..."
-		const rawBlocks = text.split(/\n\s*\n/);
-		const parsedQuestions: Question[] = [];
-		let idCounter = 1;
-
-		for (const block of rawBlocks) {
-			const lines = block.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-			if (lines.length < 3) continue; // Need at least prompt + 2 answers
-
-			// Assume first line is prompt
-			const prompt = lines[0].replace(/^(\d+\.|שאלה\s*\d+:?)\s*/, ''); // Clean "1." or "שאלה 1:"
-
-			// Look for choices (starting with a-d, 1-4, or Hebrew letters)
-			// And correct answer marker
-			const choices: string[] = [];
-			let correctIndex = -1;
-
-			// Extract choices and check for answer marker in the block
-			// Common formats: 
-			// 1. Choice text
-			// 2. Choice text ...
-			// התשובה הנכונה: ג
-
-			// Or:
-			// a) choice
-			// b) choice * (marked)
-
-			// Let's iterate lines 1..end
-			for (let i = 1; i < lines.length; i++) {
-				const line = lines[i];
-
-				// specific check for "answer: x" or "תשובה: ג" line
-				const answerMatch = line.match(/(?:תשובה|answer|correct):\s*([א-דa-d1-4])/i);
-				if (answerMatch) {
-					// Map answer letter/number to index
-					const ansChar = answerMatch[1].toLowerCase();
-					if (ansChar >= '1' && ansChar <= '4') correctIndex = parseInt(ansChar) - 1;
-					if (ansChar === 'a' || ansChar === 'א') correctIndex = 0;
-					if (ansChar === 'b' || ansChar === 'ב') correctIndex = 1;
-					if (ansChar === 'c' || ansChar === 'ג') correctIndex = 2;
-					if (ansChar === 'd' || ansChar === 'ד') correctIndex = 3;
-					continue; // Don't add this line as a choice
-				}
-
-				// Just add strictly as a choice, stripping markers like "a)" "1."
-				// We assume indentation or list format
-				const choiceText = line.replace(/^([a-dא-ד1-4][.)])\s*/i, '');
-				choices.push(choiceText);
+	const downloadTemplate = () => {
+		const template = [
+			{
+				"id": "q1",
+				"category": "מדעים",
+				"prompt": "מהם המים?",
+				"choices": ["H2O", "CO2", "O2", "NaCl"],
+				"correctIndex": 0
+			},
+			{
+				"id": "q2",
+				"category": "היסטוריה",
+				"prompt": "מי היה הנשיא הראשון של ארה\"ב?",
+				"choices": ["לינקולן", "וושינגטון", "ג'פרסון", "אדמס"],
+				"correctIndex": 1
 			}
+		];
+		const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(template, null, 2));
+		const downloadAnchorNode = document.createElement('a');
+		downloadAnchorNode.setAttribute("href", dataStr);
+		downloadAnchorNode.setAttribute("download", "quiz_template.json");
+		document.body.appendChild(downloadAnchorNode);
+		downloadAnchorNode.click();
+		downloadAnchorNode.remove();
+	};
 
-			// 4 choices max for this app usually, but logic allows dynamic. 
-			// If we didn't find specific answer line, maybe it's marked with *?
-			// Not handling * parsing for now to keep simple as requested initially.
-
-			// If we found valid struct
-			if (choices.length >= 2 && correctIndex !== -1) {
-				parsedQuestions.push({
-					id: `custom-${idCounter++}`,
-					prompt,
-					choices,
-					correctIndex: correctIndex as 0 | 1 | 2 | 3,
-					category: 'general' // Default category for custom questions for now, or 'custom' if we add it
-				});
-			}
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files && e.target.files.length > 0) {
+			setFile(e.target.files[0]);
+			setParseStatus(null);
 		}
-		return parsedQuestions;
 	};
 
 	const handleLoad = () => {
-		if (!textInput.trim()) return;
-
-		try {
-			const questions = parseQuestions(textInput);
-			if (questions.length === 0) {
-				setParseStatus({ success: false, message: 'לא זוהו שאלות תקינות. וודא שיש רווח כפול בין שאלות ושיש שורת "תשובה: X".' });
-				return;
-			}
-
-			localStorage.setItem('custom_questions', JSON.stringify(questions));
-			setExistingCount(questions.length);
-			setParseStatus({ success: true, message: `הוטענו ${questions.length} שאלות בהצלחה!` });
-			onQuestionsUpdate(questions);
-		} catch (e) {
-			setParseStatus({ success: false, message: 'שגיאה בעיבוד השאלות.' });
+		if (!file) {
+			setParseStatus({ success: false, message: 'אנא בחר קובץ JSON תחילה.' });
+			return;
 		}
+
+		const reader = new FileReader();
+		reader.onload = (event) => {
+			try {
+				const json = JSON.parse(event.target?.result as string);
+
+				// Basic Validation
+				if (!Array.isArray(json)) {
+					throw new Error('הקובץ אינו מכיל מערך תקין.');
+				}
+
+				const validQuestions: Question[] = [];
+				let index = 1;
+				for (const item of json) {
+					if (!item.prompt || !Array.isArray(item.choices) || typeof item.correctIndex !== 'number') {
+						throw new Error(`שאלה מספר ${index} אינה תקינה (חסר שדה חובה).`);
+					}
+					// Ensure category exists, default to 'כללי' if missing
+					validQuestions.push({
+						id: item.id || `custom-${index}`,
+						prompt: item.prompt,
+						choices: item.choices,
+						correctIndex: item.correctIndex as 0 | 1 | 2 | 3,
+						category: item.category || 'כללי'
+					});
+					index++;
+				}
+
+				if (validQuestions.length === 0) {
+					throw new Error('לא נמצאו שאלות בקובץ.');
+				}
+
+				localStorage.setItem('custom_questions', JSON.stringify(validQuestions));
+				setExistingCount(validQuestions.length);
+				setParseStatus({ success: true, message: `הוטענו ${validQuestions.length} שאלות בהצלחה!` });
+				onQuestionsUpdate(validQuestions);
+
+				// Optional: Auto redirect after success? 
+				// For now, let user see message and click back.
+
+			} catch (e: any) {
+				setParseStatus({ success: false, message: `שגיאה בקובץ: ${e.message}` });
+			}
+		};
+		reader.readAsText(file);
 	};
 
 	const handleClear = () => {
@@ -123,10 +119,10 @@ export function QuizLoader({ onBack, onQuestionsUpdate }: QuizLoaderProps) {
 
 	return (
 		<div className="card" style={{ maxWidth: '800px', margin: '0 auto' }}>
-			<h2 className="app-title" style={{ fontSize: '2rem' }}>טעינת שאלות</h2>
-			<p className="app-subtitle">הדבק כאן שאלות בפורמט חופשי. הקפד על שורה רווח בין שאלות, וציון התשובה הנכונה.</p>
+			<h2 className="app-title" style={{ fontSize: '2rem' }}>טעינת שאלות מקובץ</h2>
+			<p className="app-subtitle">העלה קובץ JSON עם מאגר השאלות שלך.</p>
 
-			<div style={{ margin: '1rem 0' }}>
+			<div style={{ margin: '1rem 0', textAlign: 'center' }}>
 				{existingCount !== null ? (
 					<div style={{ padding: '1rem', background: '#ecfdf5', color: '#065f46', borderRadius: '8px', marginBottom: '1rem' }}>
 						🟢 ישנן {existingCount} שאלות מותאמות אישית במערכת.
@@ -138,21 +134,21 @@ export function QuizLoader({ onBack, onQuestionsUpdate }: QuizLoaderProps) {
 				)}
 			</div>
 
-			<textarea
-				className="btn" // reuse parsing style roughly
-				style={{ minHeight: '300px', textAlign: 'right', fontFamily: 'monospace', fontSize: '0.9rem', cursor: 'text', background: '#f9fafb' }}
-				placeholder={`דוגמה:
-מהי בירת צרפת?
-א. לונדון
-ב. פריז
-ג. ברלין
-ד. מדריד
-תשובה: ב
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', padding: '2rem', border: '2px dashed #ccc', borderRadius: '12px', background: '#f9fafb' }}>
+				<input
+					type="file"
+					accept=".json"
+					onChange={handleFileChange}
+					style={{ fontSize: '1.2rem' }}
+				/>
 
-שאלה הבאה...`}
-				value={textInput}
-				onChange={(e) => setTextInput(e.target.value)}
-			/>
+				<button
+					onClick={downloadTemplate}
+					style={{ background: 'transparent', border: 'none', textDecoration: 'underline', color: '#6b7280', cursor: 'pointer' }}
+				>
+					📥 הורד קובץ דוגמה (Template)
+				</button>
+			</div>
 
 			{parseStatus && (
 				<div style={{
@@ -161,22 +157,23 @@ export function QuizLoader({ onBack, onQuestionsUpdate }: QuizLoaderProps) {
 					borderRadius: '8px',
 					background: parseStatus.success ? '#ecfdf5' : '#fef2f2',
 					color: parseStatus.success ? '#065f46' : '#991b1b',
-					fontWeight: 'bold'
+					fontWeight: 'bold',
+					textAlign: 'center'
 				}}>
 					{parseStatus.message}
 				</div>
 			)}
 
-			<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-				<button className="btn" style={{ background: '#3b82f6', color: 'white', borderColor: '#3b82f6' }} onClick={handleLoad}>
-					טען שאלות
+			<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', justifyContent: 'center' }}>
+				<button className="btn" style={{ background: '#3b82f6', color: 'white', borderColor: '#3b82f6', width: 'auto', padding: '1rem 2rem' }} onClick={handleLoad}>
+					🚀 טען וייצר מבחן
 				</button>
-				<button className="btn wrong" onClick={handleClear} disabled={existingCount === null}>
-					אפס לברירת מחדל
+				<button className="btn wrong" style={{ width: 'auto' }} onClick={handleClear} disabled={existingCount === null}>
+					🗑️ אפס לברירת מחדל
 				</button>
 			</div>
 
-			<button className="btn" onClick={onBack} style={{ marginTop: '1rem' }}>
+			<button className="btn" onClick={onBack} style={{ marginTop: '2rem' }}>
 				חזור לתפריט
 			</button>
 		</div>

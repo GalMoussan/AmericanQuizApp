@@ -1,46 +1,33 @@
-import type { Category } from '../questions';
+// Helper to beautify default IDs if they match known keys, otherwise pass through
+const labelMap: Record<string, string> = {
+	'general': '🧬 ביולוגיה כללית',
+	'female': '🚺 מערכת רבייה נקבית',
+	'male': '🚹 מערכת רבייה זכרית',
+	'pregnancy': '🤰 הריון והתפתחות',
+	'hard': '🔥 שאלות מאתגרות',
+	'true-false': '✅ / ❌ נכון או לא נכון',
+	'כללי': '📚 ידע כללי' // Default for custom
+};
 
 type MenuProps = {
-	onSelectCategory: (category: Category | 'all') => void;
+	categories: { id: string; label: string; count: number }[];
+	onSelectCategory: (category: string | 'all') => void;
 	onOpenLoader: () => void;
 };
 
-export function Menu({ onSelectCategory, onOpenLoader }: MenuProps) {
+export function Menu({ categories, onSelectCategory, onOpenLoader }: MenuProps) {
 	return (
 		<div className="menu-container">
 			<h1 className="app-title">בהצלחה לכולם במבחן, באהבה גל.</h1>
-			<p className="app-subtitle">בחר נושא לתרגול</p>
+			<p className="app-subtitle">בחר נושא לתרגול ({categories.length} נושאים זמינים)</p>
 
 			<div className="category-grid">
-				<div className="category-card" onClick={() => onSelectCategory('general')}>
-					<span className="category-label">🧬 ביולוגיה כללית</span>
-					<span className="category-range">שאלות 1-12</span>
-				</div>
-
-				<div className="category-card" onClick={() => onSelectCategory('female')}>
-					<span className="category-label">🚺 מערכת רבייה נקבית</span>
-					<span className="category-range">שאלות 13-27</span>
-				</div>
-
-				<div className="category-card" onClick={() => onSelectCategory('male')}>
-					<span className="category-label">🚹 מערכת רבייה זכרית</span>
-					<span className="category-range">שאלות 28-42</span>
-				</div>
-
-				<div className="category-card" onClick={() => onSelectCategory('pregnancy')}>
-					<span className="category-label">🤰 הריון והתפתחות</span>
-					<span className="category-range">שאלות 43-55</span>
-				</div>
-
-				<div className="category-card" onClick={() => onSelectCategory('hard')}>
-					<span className="category-label">🔥 שאלות מאתגרות</span>
-					<span className="category-range">שאלות 56-100</span>
-				</div>
-
-				<div className="category-card" onClick={() => onSelectCategory('true-false')}>
-					<span className="category-label">✅ / ❌ נכון או לא נכון</span>
-					<span className="category-range">שאלות 101-150</span>
-				</div>
+				{categories.map((cat) => (
+					<div key={cat.id} className="category-card" onClick={() => onSelectCategory(cat.id)}>
+						<span className="category-label">{labelMap[cat.id] || cat.label}</span>
+						<span className="category-range">{cat.count} שאלות</span>
+					</div>
+				))}
 			</div>
 
 			<div style={{ marginTop: '3rem', opacity: 0.7 }}>

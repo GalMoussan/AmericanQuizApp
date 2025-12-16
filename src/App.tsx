@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import type { Question, Category } from './questions';
+import { useState, useEffect, useMemo } from 'react';
+import type { Question } from './questions';
 import { questions as defaultQuestions } from './questions';
 import { Quiz } from './components/Quiz';
 import { Menu } from './components/Menu';
@@ -7,7 +7,8 @@ import { QuizLoader } from './components/QuizLoader';
 import './App.css';
 
 function App() {
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'all' | null>(null);
+  // Use string generally for category to support custom ones
+  const [selectedCategory, setSelectedCategory] = useState<string | 'all' | null>(null);
   const [activeQuestions, setActiveQuestions] = useState<Question[]>(defaultQuestions);
   const [view, setView] = useState<'menu' | 'quiz' | 'loader'>('menu');
 
@@ -26,7 +27,28 @@ function App() {
     }
   }, []);
 
-  const handleCategorySelect = (category: Category | 'all') => {
+  // Compute dynamic categories from active questions
+  const categories = useMemo(() => {
+    const map = new Map<string, number>();
+    activeQuestions.forEach(q => {
+      // Normalize category if missing or messy?
+      const cat = q.category || 'כללי';
+      map.set(cat, (map.get(cat) || 0) + 1);
+    });
+
+    // Convert to array for Menu
+    const list = Array.from(map.entries()).map(([id, count]) => ({
+      id: id,
+      label: id, // For custom, label is same as ID usually. 
+      // If default questions, we might want mapped labels?
+      // We'll fix this in Menu mapping or here.
+      // The request asked for dynamic menu based on "Topic fields".
+      count: count
+    }));
+    return list;
+  }, [activeQuestions]);
+
+  const handleCategorySelect = (category: string | 'all') => {
     setSelectedCategory(category);
     setView('quiz');
   };
@@ -43,9 +65,12 @@ function App() {
   const handleQuestionsUpdate = (newQuestions: Question[] | null) => {
     if (newQuestions) {
       setActiveQuestions(newQuestions);
+      // Automatically go to menu to see new categories
+      setView('menu');
     } else {
       // Reset to default
       setActiveQuestions(defaultQuestions);
+      setView('menu');
     }
   };
 
@@ -54,19 +79,11 @@ function App() {
     ? activeQuestions
     : activeQuestions.filter((q) => q.category === selectedCategory);
 
-  // Note: If using custom questions, they might all be 'general' or 'custom'. 
-  // If the user selects a specific category like 'female' but custom questions are 'general', 
-  // the quiz will be empty. 
-  // We should probably show ALL custom questions if custom questions are active, 
-  // OR rely on the user to label them (which our parser defaults to 'general').
-  // For simplicity, if custom questions are loaded, we might just treat 'all' as valid? 
-  // Or just let filtering work (so "general" matches generic custom ones). 
-  // The layout has "general" category.
-
   return (
     <div className="app-container">
       {view === 'menu' && (
         <Menu
+          categories={categories}
           onSelectCategory={handleCategorySelect}
           onOpenLoader={handleOpenLoader}
         />
