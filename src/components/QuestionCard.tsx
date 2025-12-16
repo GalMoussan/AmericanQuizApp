@@ -18,13 +18,18 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 	correctAnswerClicked,
 	onChoiceClick,
 }) => {
-	const getButtonClass = (index: number) => {
-		if (correctAnswerClicked && index === question.correctIndex) return 'btn correct';
-		if (wrongIndices.includes(index)) return 'btn wrong';
-		return 'btn';
-	};
+	// Helper removed, logic inline for clarity with new classes
 
 	const progressPercentage = ((questionIndex + 1) / totalQuestions) * 100;
+
+	const categoryLabels: Record<string, string> = {
+		'general': 'ביולוגיה כללית',
+		'female': 'מערכת הרבייה הנקבית',
+		'male': 'אנטומיה ופיזיולוגיה של הגבר',
+		'pregnancy': 'הריון והתפתחות',
+		'hard': 'שאלות מאתגרות',
+		'true-false': 'נכון/לא נכון'
+	};
 
 	return (
 		<div className="card">
@@ -39,18 +44,26 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 				/>
 			</div>
 
-			<span className="topic-badge">{question.topic}</span>
+			<span className="topic-badge">{categoryLabels[question.category] || question.category}</span>
 
 			<h2 className="question-text">{question.prompt}</h2>
 
 			<div className={`choices ${question.choices.length === 2 ? 'grid-2' : ''}`}>
 				{question.choices.map((choice, index) => {
+					// Check status
 					const isWrong = wrongIndices.includes(index);
+					// Determine class based on state
+					let className = 'choice-btn';
+					if (correctAnswerClicked && index === question.correctIndex) {
+						className += ' correct';
+					} else if (isWrong) {
+						className += ' wrong';
+					}
 
 					return (
 						<button
 							key={index}
-							className={getButtonClass(index)}
+							className={className}
 							onClick={() => onChoiceClick(index)}
 							disabled={isWrong || correctAnswerClicked}
 						>

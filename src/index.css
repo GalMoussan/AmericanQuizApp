@@ -39,31 +39,35 @@ body {
 }
 
 /* Utilities */
+/* Utilities */
 .btn {
   display: block;
   width: 100%;
-  padding: 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb; /* Subtle border */
+  border-radius: 12px;
   background: white;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--text-main);
   text-align: right;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1rem;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .btn:hover:not(:disabled) {
-  background-color: #f9fafb;
+  background-color: #f8fafc;
   border-color: var(--primary);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.8;
+  cursor: default;
+  transform: none;
 }
 
 /* Status variants */
@@ -71,12 +75,20 @@ body {
   background-color: #ecfdf5; /* green-50 */
   border-color: var(--success);
   color: #065f46; /* green-800 */
+  box-shadow: 0 0 0 1px var(--success);
 }
 
 .btn.wrong {
   background-color: #fef2f2; /* red-50 */
   border-color: var(--error);
   color: #991b1b; /* red-800 */
+  box-shadow: 0 0 0 1px var(--error);
+}
+
+/* Ensure selected state is clear even without color if we wanted, but color is good. */
+.btn.selected {
+  border-color: var(--primary);
+  background-color: #eff6ff;
 }
 
 .card {
@@ -142,21 +154,243 @@ body {
   text-align: center;
 }
 
-/* True/False Grid Layout */
-.choices.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.choices.grid-2 .btn {
-  height: 120px;
-  font-size: 1.5rem;
-  font-weight: 800;
-  text-align: center;
+/* Choice Buttons - Strict Styling */
+.choice-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0;
+  width: 100%;
+  padding: 1.25rem; /* ~20px */
+  background-color: #ffffff;
+  border: 2px solid #e2e8f0; /* Light grey-blue */
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  /* Typography */
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #334155; /* Dark grey */
+  text-align: center;
+  line-height: 1.4;
+  
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 0; /* Layout handled by container gap */
+  position: relative;
 }
 
+.choice-btn:hover:not(:disabled) {
+  border-color: #3b82f6; /* Blue */
+  background-color: #f8fafc; /* Slight gray */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.choice-btn:disabled {
+  cursor: default;
+  opacity: 1; /* Keep full opacity to show colors clearly */
+}
+
+/* Status variants - Override borders and bg */
+.choice-btn.correct {
+  background-color: #22c55e !important; /* Green */
+  color: white !important;
+  border-color: #22c55e !important;
+  box-shadow: none;
+}
+
+.choice-btn.wrong {
+  background-color: #ef4444 !important; /* Red */
+  color: white !important;
+  border-color: #ef4444 !important;
+  box-shadow: none;
+}
+
+/* Choices Layout Container */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* 12px requested, 16px looks better for "gap" usually, but let's stick to request or slightly more breathing room */
+}
+
+/* True/False Specifics */
+.choices.grid-2 {
+  flex-direction: row;
+  gap: 16px;
+}
+
+.choices.grid-2 .choice-btn {
+  flex: 1;
+  height: 150px; /* Large touch area */
+  font-size: 1.5rem;
+}
+
+/* Navigation Buttons (keep generic .btn or specific .nav-btn if needed, 
+   but for now we are replacing the main usage. 
+   We should check if 'Restart' button uses .btn and break it if we remove .btn 
+   Wait, I am replacing .choices logic, but .btn might be used elsewhere. 
+   I will keep .btn for general use but use .choice-btn for answers.
+   I need to make sure I don't delete .btn if it's used elsewhere. 
+   The user prompt implies "Rewrite ... QuestionCard ... and associated CSS". 
+   I will append these new classes and update QuestionCard to use them.
+*/
+
+/* Menu Styles */
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  gap: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.app-title {
+  font-size: 3rem;
+  color: var(--primary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.app-subtitle {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  margin-top: -1rem;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.category-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 160px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.category-label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.category-range {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+}
+
+/* Back Button */
+.quiz-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.progress-text {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  border-color: var(--text-main);
+}
+
+.secondary-btn {
+  background-color: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  margin-top: 1rem;
+}
+
+.secondary-btn:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.prev-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.prev-btn:hover:not(:disabled) {
+  background-color: rgba(0,0,0,0.05);
+  color: var(--text-main);
+}
+
+.prev-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.quiz-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .app-title {
+    font-size: 2.2rem;
+  }
+}
