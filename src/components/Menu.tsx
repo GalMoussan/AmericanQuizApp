@@ -37,6 +37,7 @@ export function Menu({ categories, onSelectCategory, onOpenLoader }: MenuProps) 
 				>
 					⚙️ ניהול שאלות / טען משלי
 				</button>
+				<p style={{ fontSize: '0.8rem', marginTop: '1rem', color: '#9ca3af' }}>v1.1 - JSON Upload System</p>
 			</div>
 		</div>
 	);

@@ -171,11 +171,17 @@ export function QuizLoader({ onBack, onQuestionsUpdate }: QuizLoaderProps) {
 				<button className="btn wrong" style={{ width: 'auto' }} onClick={handleClear} disabled={existingCount === null}>
 					🗑️ אפס לברירת מחדל
 				</button>
+				<button className="btn" style={{ width: 'auto', background: '#9ca3af', borderColor: '#9ca3af', color: 'white' }} onClick={() => {
+					localStorage.clear();
+					window.location.reload();
+				}}>
+					🧹 מחק Cache
+				</button>
 			</div>
 
 			<button className="btn" onClick={onBack} style={{ marginTop: '2rem' }}>
 				חזור לתפריט
 			</button>
-		</div>
+		</div >
 	);
 }
