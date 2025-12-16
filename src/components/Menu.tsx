@@ -16,7 +16,7 @@ const categories: { id: Category | 'all'; label: string; range: string }[] = [
 export function Menu({ onSelectCategory }: MenuProps) {
 	return (
 		<div className="menu-container">
-			<h1 className="app-title">Study Hub</h1>
+			<h1 className="app-title">בהצלחה לכולם במבחן, באהבה גל.</h1>
 			<p className="app-subtitle">בחר נושא לתרגול</p>
 
 			<div className="category-grid">
