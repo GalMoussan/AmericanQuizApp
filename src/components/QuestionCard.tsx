@@ -28,7 +28,8 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 		'male': 'אנטומיה ופיזיולוגיה של הגבר',
 		'pregnancy': 'הריון והתפתחות',
 		'hard': 'שאלות מאתגרות',
-		'true-false': 'נכון/לא נכון'
+		'true-false': 'נכון/לא נכון',
+		'expert': 'שאלות קשות ומאתגרות - רמה גבוהה'
 	};
 
 	return (

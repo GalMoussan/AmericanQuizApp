@@ -11,6 +11,7 @@ const categories: { id: Category | 'all'; label: string; range: string }[] = [
 	{ id: 'pregnancy', label: 'הריון, התפתחות עוברית והפריה', range: 'שאלות 43-55' },
 	{ id: 'hard', label: 'שאלות מאתגרות ומשולבות', range: 'שאלות 56-100' },
 	{ id: 'true-false', label: 'מבחן נכון/לא נכון (הכל)', range: 'שאלות 101-150' },
+	{ id: 'expert', label: 'שאלות קשות ומאתגרות - רמה גבוהה', range: 'שאלות 151-200' },
 ];
 
 export function Menu({ onSelectCategory }: MenuProps) {
