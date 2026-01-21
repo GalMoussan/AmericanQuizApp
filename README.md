@@ -1,73 +1,66 @@
-# React + TypeScript + Vite
+# Study Buddy
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> The AI-Powered Gamified Learning Platform.
 
-Currently, two official plugins are available:
+**Status:** 🚀 MVP Complete
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## About the Project
 
-## React Compiler
+Study Buddy is a modern quiz application designed to make studying addictive. This app transforms traditional learning by integrating gamification elements such as XP scoring, daily streaks, and dynamic progress bars to keep you motivated.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Key Features
 
-## Expanding the ESLint configuration
+### 🧠 Specialized Tracks
+Access distinct learning modules tailored to your needs:
+- **Learning Psychology**: A comprehensive module featuring 50+ questions.
+- **Core Studies**: Covers essential subjects including Biology, History, and React.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### ✨ AI Creator Mode
+Powered by **Google Gemini**. Simply paste your raw study notes, and the AI will instantly generate a playable quiz for you.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🎮 Gamified Interface
+Enjoy a dynamic learning experience with:
+- Instant feedback on answers.
+- Streak tracking to build consistent habits.
+- A dynamic HUD (Heads-Up Display) to monitor your progress.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 📱 Responsive Design
+Fully optimized for both Desktop and Mobile devices, ensuring a seamless experience anywhere.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## User Guide
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Step 1: The Dashboard
+Your journey begins on the Dashboard, divided into two main sections:
+- **Psychology**: Dedicated to the Learning Psychology track.
+- **Core Studies**: A collection of other available subjects.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Step 2: Taking a Quiz
+Select any module to start:
+- **Gameplay**: Choose the correct answer from the options provided.
+- **Rewards**: Earn XP for every correct answer and build your streak to unlock achievements.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Step 3: Creating Content
+Create custom quizzes with the AI Creator Mode:
+1. Click the **"Create New"** button.
+2. Paste your raw text notes into the input area.
+3. Click generate, and the AI will create a new quiz for you instantly.
+
+## Technical Quick Start
+
+To get the project up and running locally:
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Set up Environment Variables**:
+   Create a `.env.local` file in the root directory and add your Gemini API key:
+   ```bash
+   GEMINI_API_KEY=your_key_here
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
