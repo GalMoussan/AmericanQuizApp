@@ -1,25 +1,24 @@
 import { useState } from 'react';
 import { Quiz } from './components/Quiz.tsx';
 import { Menu } from './components/Menu.tsx';
-import { questions, type Category } from './questions.ts';
+import { QuizRepository } from './lib/repository/QuizRepository';
 import './App.css';
 
 function App() {
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'all' | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
-  const filteredQuestions = selectedCategory
-    ? questions.filter((q) => selectedCategory === 'all' || q.category === selectedCategory)
-    : [];
+  const selectedCourse = selectedCourseId ? QuizRepository.getCourseById(selectedCourseId) : null;
+  const questionsToDisplay = selectedCourse ? selectedCourse.questions : [];
 
   return (
     <div className="app-container">
-      {!selectedCategory ? (
-        <Menu onSelectCategory={setSelectedCategory} />
+      {!selectedCourseId ? (
+        <Menu onSelectCourse={setSelectedCourseId} />
       ) : (
         <Quiz
-          key={selectedCategory} // Force remount on category change
-          questions={filteredQuestions}
-          onBackToMenu={() => setSelectedCategory(null)}
+          key={selectedCourseId} // Force remount on course change
+          questions={questionsToDisplay}
+          onBackToMenu={() => setSelectedCourseId(null)}
         />
       )}
     </div>

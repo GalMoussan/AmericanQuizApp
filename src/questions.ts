@@ -1,4 +1,4 @@
-export type Category = 'general' | 'female' | 'male' | 'pregnancy' | 'hard' | 'true-false' | 'expert';
+export type Category = 'general' | 'female' | 'male' | 'pregnancy' | 'hard' | 'true-false' | 'expert' | 'psychology';
 
 export type Question = {
   id: string;
@@ -7,6 +7,7 @@ export type Question = {
   choices: string[];
   correctIndex: 0 | 1 | 2 | 3;
   type?: 'american' | 'boolean';
+  explanation?: string;
 };
 
 export const questions: Question[] = [
