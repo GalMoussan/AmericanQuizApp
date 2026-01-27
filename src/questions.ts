@@ -593,6 +593,18 @@ export const questions: Question[] = [
     correctIndex: 1
   },
   {
+    id: "q_new_48",
+    category: "male",
+    prompt: "איפה נוצרים תאי הזרע?",
+    choices: [
+      "בשלפוחית הזרע.",
+      "באבוביות הזרע בתוך האשך.",
+      "בערמונית.",
+      "בפין."
+    ],
+    correctIndex: 1
+  },
+  {
     id: "q_new_49",
     category: "male",
     prompt: "מהו תפקיד תאי ליידיג (Leydig)?",
@@ -1095,7 +1107,7 @@ export const questions: Question[] = [
     choices: [
       "רק בגיל ההתבגרות.",
       "מיד בהפריה.",
-      "בשליש הראשון להריון (שבועות 8-12), כברירת מחדל בהיעדר AMH.",
+      "בשבועות 8-12 להריון, כברירת מחדל בהיעדר AMH.",
       "בלידה."
     ],
     correctIndex: 2
