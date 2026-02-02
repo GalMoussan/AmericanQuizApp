@@ -23,13 +23,8 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 	const progressPercentage = ((questionIndex + 1) / totalQuestions) * 100;
 
 	const categoryLabels: Record<string, string> = {
-		'general': 'ביולוגיה כללית',
-		'female': 'מערכת הרבייה הנקבית',
-		'male': 'אנטומיה ופיזיולוגיה של הגבר',
-		'pregnancy': 'הריון והתפתחות',
-		'hard': 'שאלות מאתגרות',
-		'true-false': 'נכון/לא נכון',
-		'expert': 'שאלות קשות ומאתגרות - רמה גבוהה'
+		'psychology': 'פסיכולוגיה כללית',
+		'hard': 'שאלות חשיבה'
 	};
 
 	return (
