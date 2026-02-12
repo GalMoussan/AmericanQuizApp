@@ -2,7 +2,7 @@
 
 > The AI-Powered Gamified Learning Platform.
 
-**Status:** 🚀 MVP Complete
+**Status:** 🚀 MVP Complete!
 
 ## About the Project
 
